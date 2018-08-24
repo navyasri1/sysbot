@@ -10,8 +10,8 @@ Systers Slackbot - Sysbot Project
 
 **This project is under active development.**
 
-This project is currently hosted on Pythonanywhere 
-[here](sombuddha2016.pythonanywhere.com) and on AWS 
+This project is currently hosted on Pythonanywhere
+[here](sombuddha2016.pythonanywhere.com) and on AWS
 [here](http://sysbot-dev.5uhcagxzd9.eu-central-1.elasticbeanstalk.com/).  
 
 About
@@ -36,7 +36,7 @@ to know which function handles what.
 5. A check has been kept for multiple claims( same issue can't be claimed by or assigned to multiple members) on the same issue and also any unapproved issue cannot be claimed or assigned.
 6. Any new PR that's opened get's labelled as 'not reviewed'.
 7. If a PR is sent to un-approved issue, it will get closed.
-8. We can have three types of issue templates - Feature Request, 
+8. We can have three types of issue templates - Feature Request,
 User Story, and Bug report. The three options are currently functional [here](https://github.com/systers/mentorship-backend/issues/new/choose).
 The bot checks if each issue follows at least one of these options. If not a `Template Mismatch` label is added, and PR cant be sent to it.
 9. A check has been kept on the PR template as well. If the PR is not linked to an issue
@@ -54,11 +54,11 @@ newcomer member level is completed as mentioned [here](http://systers.io/member-
 However this command can only be used by members of @maintainers team on Slack. E.g. of usage - /sysbot_approve_issue sysbot 23 .
 4. A slash command `/sysbot_assign_issue <repo_name> <issue_number> <assignee_github_username>` can be used to assign any issue from Github directly via Slack.
 However this command can only be used by members of @maintainers team on Slack. E.g. of usage - /sysbot_assign_issue sysbot 23 sammy1997.
-5. A slash command `/sysbot_claim <repo_name> <issue_number> <assignee_github_username>` or `/sysbot_claim <repo_name> <issue_number>` 
+5. A slash command `/sysbot_claim <repo_name> <issue_number> <assignee_github_username>` or `/sysbot_claim <repo_name> <issue_number>`
 ( the latter option will work if your github URL is provided on Slack) can be used to claim any issue from Github directly via Slack.
 E.g. of usage - /sysbot_claim sysbot 23.
 [NOTE: To claim or assign an issue, it must first be approved]
-6. A slash command `/sysbot_open_issue <repo_name> <author_username>` * Title of issue * Issue Description * Issue Requirement Item * Estimation. 
+6. A slash command `/sysbot_open_issue <repo_name> <author_username>` * Title of issue * Issue Description * Issue Requirement Item * Estimation.
 The issues are opened in full markdown format, and the author's name is mentioned at the top.
 7. A slash command `/sysbot_help` provides a list of all the commands and functionalities of the bot.  
 8. Each week PRs which have been opened that week but have not been reviewed yet are collected and sent to respective Slack channels.
@@ -70,7 +70,7 @@ The issues are opened in full markdown format, and the author's name is mentione
 and replies with more information on these topics.
 14. A slash command- /sysbot_label_issue <repo-name> <issue-number> [list of labels] to label an issue directly from Slack.
 Access only to members of maintainers team. Eg- /sysbot_label_issue sysbot-test 180 [bug, enhancement]
-15. A slash command on Slack to view issues directly on Slack has been added. 
+15. A slash command on Slack to view issues directly on Slack has been added.
 Format: /sysbot_view_issue <repo-name> <issue-name> . Eg- /sysbot_view_issue sysbot 123
 
 More explanations on NLP part can be found [here](nlp_explainations.md)
@@ -113,6 +113,18 @@ After the virtual environment is active, use this command to install all require
 pip install -r requirements.txt
 ```
 
+4. Open ```env.template``` and replace placeholder values by actual values by looking [here](https://github.com/systers/sysbot/blob/develop/docs/exporting_keys.md).
+After all the values have been replaced, follow these commands:
+```
+cd docs
+```
+```
+cp env.template .env
+```
+```
+source .env
+````
+
 Once Flask and other requirements have been installed, **on Windows** start the server using:
 
 ```
@@ -141,7 +153,7 @@ Be sure you have internet access while trying this command. Once it
 is connected, it will give you a unique http and https url(Eg- http://c777e5a5.ngrok.io).
 Now any requests/data sent to this URL will be directed to your local server.
 
-Also, for local usage change the imports from dictionaries.py 
+Also, for local usage change the imports from dictionaries.py
 in main_server, slack_functions, github_functions to dictionaries_test.py.
 However **do not commit this change**. Rever it back before sending a PR.
 This is **only for testing features** in the Sample Workspace!
@@ -150,22 +162,22 @@ This is **only for testing features** in the Sample Workspace!
 
 Go to any Github repo that you own( or your organization owns),
 and in the settings section, go to webhooks. Add a new webhook.
-In the hook, URL enter the above HTTP URL generated by ngrok, 
-and from the events select issues, issue comments and PRs. 
+In the hook, URL enter the above HTTP URL generated by ngrok,
+and from the events select issues, issue comments and PRs.
 Once done save the webhook. If you are using your own repo
 look [here](exporting_keys.md) for how to export keys.
 
 ##### For Slack
 
 Have a look at my proposal on how I proposed to work around giving access
-to Slack apps by simulating events 
+to Slack apps by simulating events
 [here](https://docs.google.com/document/d/1q5F3mumzjEYhoInLjdxCBaGtIxvEmy5OeZQKARcc0vk/edit?usp=sharing)
 
 Join this workspace using [this](https://join.slack.com/t/sysbotsample/shared_invite/enQtNDAzMTU2MTkwNTYyLTIwYzQ2ZTk0YzQ4MzM1MGRjMjI0ZjkxOTdlYjRlNTg5OTU4ZDM5YzFmMWYxNjAwYzg2OWY1MzA1Y2FiOGQxZjI)
- invite link. This is the sample workspace for testing out Sysbot! 
+ invite link. This is the sample workspace for testing out Sysbot!
  All the channel names have been kept same as the main workspace.   
 
-To simulate an event first start the virtualenv, export all environment variables and run the local server. 
+To simulate an event first start the virtualenv, export all environment variables and run the local server.
 By default host **127.0.0.1** and port **5000** is considered.
 If you want to use a separate host and port, export them as follows:
 
@@ -179,18 +191,18 @@ simulate/data as github_data.json and slack_data.json.
 If you want to simulate the GitHub events also locally,
 change the data in JSON file - replace the Github event
 data with event data from your repository's hook.
- We are using **runp** to run functions from a file. 
+ We are using **runp** to run functions from a file.
  Once the server is running, do the following:
- 
+
  ```
  cd simulate
  ```
  To mock all events( both Slack and Github events):
- 
+
  ```
  runp simulate.py simulate_all
  ```
- 
+
  To mock all Github events:
 
  ```
@@ -208,8 +220,8 @@ For example to mock an approve comment event:
 runp simulate.py github_approve_comment
 ```
 You can add your own simulations as well. Add the data to the respective json file and write a function to deliver the data using requests library!
- 
-If you want to see the changes on your own repo, remember to change the 
+
+If you want to see the changes on your own repo, remember to change the
 JSON data accordingly before simulating.
 
 
@@ -219,11 +231,11 @@ Testing
 The unit tests are written under two files - one for Github
 functions, and another for Slack functions.  
 
-Each of the functions expects some data which are basically delivered by Slack and Github Servers to our event webhooks. This data is stored 
-in tests/setup_data.py . When you run the bot locally and configure the hooks on your own repos(for Github), or channels(for Slack), you need to change the data accordingly(for Github data change the repo name, 
+Each of the functions expects some data which are basically delivered by Slack and Github Servers to our event webhooks. This data is stored
+in tests/setup_data.py . When you run the bot locally and configure the hooks on your own repos(for Github), or channels(for Slack), you need to change the data accordingly(for Github data change the repo name,
 owner name etc and for Slack change the channel IDs and user IDs).
 
-In the setup data file, all the data used for GitHub are for the sysbot-test 
+In the setup data file, all the data used for GitHub are for the sysbot-test
 repo which is private. Replace the repo details with your repo if you want to test the data locally.
 
 To run the tests use the command:
