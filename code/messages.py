@@ -100,7 +100,7 @@ MESSAGE = {
     'not_approved': 'This issue has not been approved yet. Please try a different issue.',
     'pr_to_unapproved_issue': 'Please send PRs only to approved issues.',
     'template_mismatch': 'Please make sure that your issue follows the provided template.',
-    'list_of_unreviewed_prs': 'Following are the list of not reviewed PRs:\n %s',
+    'list_of_unreviewed_prs': 'Following are the list of not reviewed PRs in %s :\n %s',
     "issue_template": "Created via Slack by @%s \r\n ## Description\r\n"
                       "%s\r\n\r\n ## Acceptance Criteria\r\n"
                       "### Update [Required]\r\n - [ ] %s \r\n\r\n"
@@ -131,7 +131,7 @@ MESSAGE = {
     'pr_template_not_followed': "This PR does not follow the PR template",
     'error_view_command': "The parameters for view command are wrong. Please check again.",
     'incorrect_info_provided': "Information provided is wrong. Please check repo name and issue number.",
-    'no_unreviewed_prs': "All PR reviews up to date. None pending."
+    'no_unreviewed_prs': "All PR reviews in %s up to date. None pending."
 }
 
 ANSWERS_FAQS = {

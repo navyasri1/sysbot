@@ -29,11 +29,12 @@ def collect_unreviewed_prs():  # pragma: no cover
         pr_list = list_open_prs_from_repo('systers', key)
         if pr_list != '':
             # Constructing message( excluding the last comma from pr_list)
-            message = MESSAGE.get('list_of_unreviewed_prs', '%s') % pr_list[0:-1]
+            message = MESSAGE.get('list_of_unreviewed_prs') % ('systers/' + key, pr_list[0:-1])
             # Send pr_list to respective channels
             send_message_to_channels(value, message)
         else:
-            send_message_to_channels(value, MESSAGE.get('no_unreviewed_prs', ""))
+            message = MESSAGE.get('no_unreviewed_prs') % ('systers/' + key)
+            send_message_to_channels(value, message)
 
 
 schedule = Scheduler(daemon=True)
