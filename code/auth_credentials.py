@@ -1,3 +1,5 @@
+"""Enviroment variables (auth credentials)."""
+
 import os
 # FOR SLACK
 

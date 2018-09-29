@@ -1,3 +1,5 @@
+"""This module handles and listen to various events."""
+
 import requests
 from flask import json
 from request_urls import (add_label_url, send_team_invite, assign_issue_url,
@@ -15,8 +17,13 @@ headers = {
 }
 
 
-# Labels newly opened issues with "Not Approved" tag
 def label_opened_issue(data):
+    """Each newly opened issue is labelled to be 'Not Approced' by the bot.
+
+    param data: json response with key value pairs containing repo
+    information. return message: response message and request status
+    code.
+    """
     session = requests.Session()
     # Create a authenticated session
     session.auth = (USERNAME, PASSWORD)
@@ -40,6 +47,13 @@ def label_opened_issue(data):
 
 
 def send_github_invite(github_id):
+    """Send github invite to join newcomer team.
+
+    Command to get invited to the necomer team and become the member of the
+    org. However checks if the newcomer member level is completed.
+    param github_id: ID of the github user.
+    return: response message and request status code.
+    """
     session = requests.Session()
     session.auth = (USERNAME, PASSWORD)
     # Header as required by Github API
@@ -54,6 +68,15 @@ def send_github_invite(github_id):
 
 
 def issue_comment_approve_github(issue_number, repo_name, repo_owner, comment_author, is_from_slack):
+    """Approve issues via approve comments on Github and via Slack.
+
+    param issue_number: ID of the issue.
+    param repo_name: Name of the repository.
+    param repo_owner: Owner of the repository.
+    param comment_authon: Author of the 'approve' comment.
+    param is_from_slack: If the command is made from slack.
+    return: response message and request status code.
+    """
     if not is_from_slack:
         issue_author = get_issue_author(repo_owner, repo_name, issue_number)
         if issue_author == comment_author:
@@ -79,6 +102,13 @@ def issue_comment_approve_github(issue_number, repo_name, repo_owner, comment_au
 
 
 def github_pull_request_label(pr_number, repo_name, repo_owner):
+    """Label newly opened PRs with under review label.
+
+    param pr_number: ID of the pull request.
+    param repo_name: Name of the repository.
+    param repo_owner: Name of the owner.
+    return: response status code from post request.
+    """
     session = requests.Session()
     session.auth = (USERNAME, PASSWORD)
     label = '["Not Reviewed"]'
@@ -89,6 +119,15 @@ def github_pull_request_label(pr_number, repo_name, repo_owner):
 
 
 def issue_assign(issue_number, repo_name, assignee, repo_owner):
+    """Assign issue via github and slack.
+
+    Assign issues from github and slack.Maintainers and collaborators can assign an issue to a member by the comment.
+    param issue_number: ID of the issue.
+    param repo_name: Name of the repository.
+    param repo_owner: Owner of the issue.
+    param assignee: User to whom the issue is to be assigned.
+    return: response status code from PATCH request.
+    """
     session = requests.Session()
     session.auth = (USERNAME, PASSWORD)
     headers = {'Accept': 'application/vnd.github.symmetra-preview+json', 'Content-Type': 'application/json'}
@@ -100,6 +139,13 @@ def issue_assign(issue_number, repo_name, assignee, repo_owner):
 
 
 def check_assignee_validity(repo_name, assignee, repo_owner):
+    """Check if an assignee is valid (if the assignee is a member).
+
+    param repo_name: Name of the repository.
+    param assignee: User to whom the issue is assigned.
+    param repo_owner: Owner of the repository.
+    return: response status code from GET request.
+    """
     session = requests.Session()
     session.auth = (USERNAME, PASSWORD)
     request_url = check_assignee_url % (repo_owner, repo_name, assignee)
@@ -108,6 +154,14 @@ def check_assignee_validity(repo_name, assignee, repo_owner):
 
 
 def github_comment(message, repo_owner, repo_name, issue_number):
+    """Add comments on github with the author as sys-bot.
+
+    param message: Comment message.
+    param issue_number: ID of the issue.
+    param repo_name: Name of the repository.
+    param repo_owner: Owner of the issue.
+    return: response status code from POST request.
+    """
     body = '{"body":"%s"}' % message
     session = requests.Session()
     session.auth = (USERNAME, PASSWORD)
@@ -119,6 +173,14 @@ def github_comment(message, repo_owner, repo_name, issue_number):
 
 
 def issue_claim_github(assignee, issue_number, repo_name, repo_owner):
+    """Assign a user to an issue, .i.e handles both assign and claim commands.
+
+    param assignee: User to whom the issue is to be assigned.
+    param issue_number: ID of the issue.
+    param repo_name: Name of the repository.
+    param repo_owner: Owner of the issue.
+    return: response status code from check_assignee_validity().
+    """
     status = check_assignee_validity(repo_name, assignee, repo_owner)
     # Check if the assignee is valid
     if status == 404:
@@ -134,6 +196,13 @@ def issue_claim_github(assignee, issue_number, repo_name, repo_owner):
 
 
 def check_multiple_issue_claim(repo_owner, repo_name, issue_number):
+    """Check if same issue is being claimed multiple times.
+
+    param issue_number: ID of the issue.
+    param repo_name: Name of the repository.
+    param repo_owner: Owner of the issue.
+    return: True if the issues has been claimed.
+    """
     session = requests.Session()
     session.auth = (USERNAME, PASSWORD)
     request_url = get_issue_url % (repo_owner, repo_name, issue_number)
@@ -149,6 +218,19 @@ def check_multiple_issue_claim(repo_owner, repo_name, issue_number):
 
 
 def open_issue_github(repo_owner, repo_name, issue_title, issue_description, update_list_item, estimation, author):
+    """Open github issue following template.
+
+    Open new issue following Systers template.The issues are opened
+    in full markdown format, and the author's name is mentioned at the top.
+    param repo_owner: Owner of the repository.
+    param repo_name: Name of the repository:
+    param issue_tittle: Tittle of the issue.
+    param issue_description: Description of the issue.
+    param update_list_item: Add checklist .i.e Acceptance Criteria list items.
+    param estimation: Estimated time required to work on the issue.
+    param author: Author of the issue.
+    return: Response status code from POST request.
+    """
     session = requests.Session()
     session.auth = (USERNAME, PASSWORD)
     request_url = open_issue_url % (repo_owner, repo_name)
@@ -162,6 +244,13 @@ def open_issue_github(repo_owner, repo_name, issue_title, issue_description, upd
 
 
 def get_issue_author(repo_owner, repo_name, issue_number):
+    """Fetch the author of the issues .i.e user who opened the issue.
+
+    param issue_number: ID of the issue.
+    param repo_name: Name of the repository.
+    param repo_owner: Owner of the issue.
+    return: author of the opened issue.
+    """
     session = requests.Session()
     session.auth = (USERNAME, PASSWORD)
     request_url = get_issue_url % (repo_owner, repo_name, issue_number)
@@ -170,6 +259,13 @@ def get_issue_author(repo_owner, repo_name, issue_number):
 
 
 def check_approved_tag(repo_owner, repo_name, issue_number):
+    """Check if the issues has been approved by maintainers or collaborators.
+
+    param issue_number: ID of the issue.
+    param repo_name: Name of the repository.
+    param repo_owner: Owner of the issue.
+    return: True if the issue is approved.
+    """
     session = requests.Session()
     session.auth = (USERNAME, PASSWORD)
     request_url = get_labels % (repo_owner, repo_name, issue_number)
@@ -188,6 +284,14 @@ def check_approved_tag(repo_owner, repo_name, issue_number):
 
 
 def unassign_issue(repo_owner, repo_name, issue_number, assignee):
+    """Remove the assignee from the issue.
+
+    param repo_owner: Owner of the issue.
+    param repo_name: Name of the repository.
+    param issue_number: ID of the issue.
+    param assignee: User who had been assigned to the issue.
+    return: Response status code
+    """
     session = requests.Session()
     session.auth = (USERNAME, PASSWORD)
     request_url = remove_assignee_url % (repo_owner, repo_name, issue_number)
@@ -198,6 +302,14 @@ def unassign_issue(repo_owner, repo_name, issue_number, assignee):
 
 
 def close_pr(repo_owner, repo_name, pr_number):
+    """Close the pull request.
+
+    It could only be closed by members of the org or the user itself.
+    param repo_owner: Owner of the issue.
+    param repo_name: Name of the repository.
+    param pr_number: ID of the issue.
+    return: Response status code.
+    """
     session = requests.Session()
     session.auth = (USERNAME, PASSWORD)
     request_url = close_pull_request_url % (repo_owner, repo_name, pr_number)
@@ -209,6 +321,14 @@ def close_pr(repo_owner, repo_name, pr_number):
 
 
 def check_issue_template(repo_owner, repo_name, issue_number, body):
+    """Check if issue follows atleast one of 3 templates otherwise labels it.
+
+    param repo_owner: Owner of the issue.
+    param repo_name: Name of the repository.
+    param issue_number: ID of the issue.
+    param body: Description of the issue.
+    return: Issue template match or mismatch message.
+    """
     if not are_issue_essential_components_present(body):
         session = requests.Session()
         session.auth = (USERNAME, PASSWORD)
@@ -221,6 +341,11 @@ def check_issue_template(repo_owner, repo_name, issue_number, body):
 
 
 def are_issue_essential_components_present(body):
+    """Check if issue has all essential components of a template.
+
+    param body: json response with key value pairs of issue template components.
+    return: True if all essential componentsa are present.
+    """
     tokens = body.split('\r\n')
     # Remove blank strings
     tokens = [s.strip() for s in tokens if s != '']
@@ -264,6 +389,12 @@ def are_issue_essential_components_present(body):
 
 
 def list_open_prs_from_repo(repo_owner, repo_name):  # pragma: no cover
+    """List all open PRs from repo opened within 7 days of the passed date.
+
+    param repo_owner: Owner of the issue.
+    param repo_name: Name of the repository.
+    return: list of PRs url, opened within 7 days and marked 'not reviewed'.
+    """
     session = requests.Session()
     session.auth = (USERNAME, PASSWORD)
     request_url = list_open_prs_url % (repo_owner, repo_name)
@@ -285,9 +416,15 @@ def list_open_prs_from_repo(repo_owner, repo_name):  # pragma: no cover
 
 
 def check_pr_template(pr_body, repo_owner, repo_name, pr_number):
+    """Validate the PR template.
+
+    param pr_body: Content of the PR.
+    param repo_owner: Owner of the repository.
+    param repo_name: Name of the repository.
+    param pr_number: ID of the PR.
+    return: True if the PR template is followed.
+    """
     tokens = pr_body.split('\r\n')
-    # Remove blank strings
-    tokens = [s.strip() for s in tokens if s != '']
     # Necessary components in the PR template
     necessary_elements_set = {'### Description', '### Type of Change:', '### How Has This Been Tested?',
                               '### Checklist:'}
@@ -317,7 +454,15 @@ def check_pr_template(pr_body, repo_owner, repo_name, pr_number):
     return False
 
 
-def label_list_issue(repo_owner, repo_name, issue_number, comment):
+def label_list_issue(repo_owner, repo_name, issue_number, comment, commenter):
+    """Label the issues within list with proper labels.
+
+    param repo_owner: Owner of the repository.
+    param repo_name: Name of the repository.
+    param issue_number: ID of the issue.
+    param comment: comment message.
+    param commenter: ID of the commenter.
+    """
     tokens = comment.split(",")
     labelled = 0
     for label_name in tokens:
@@ -340,6 +485,13 @@ def label_list_issue(repo_owner, repo_name, issue_number, comment):
 
 
 def fetch_issue_body(repo_owner, repo_name, issue_number):
+    """Fetch body/content of a specific issue.
+
+    param repo_owner: Owner of the repository.
+    param repo_name: Name of the repository.
+    param issue_number: ID of the issue.
+    return: response message.
+    """
     session = requests.Session()
     session.auth = (USERNAME, PASSWORD)
     request_url = get_issue_url % (repo_owner, repo_name, issue_number)
@@ -352,6 +504,11 @@ def fetch_issue_body(repo_owner, repo_name, issue_number):
 
 
 def pr_reviewed_label(data):
+    """Label review state (reviewed or under review).
+
+    param data: json response data containing repo information.
+    return: succes message and status code.
+    """
     session = requests.Session()
     session.auth = (USERNAME, PASSWORD)
     pr_number = data.get("pull_request", {}).get('number', '')

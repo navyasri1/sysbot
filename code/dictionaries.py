@@ -1,3 +1,5 @@
+""" Channel ID's and message keys within dictionary. ""
+
 # Channel ids for each repo
 repo_vs_channel_id_dict = {
     'sysbot': 'CAEDCBACW',

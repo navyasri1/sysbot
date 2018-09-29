@@ -1,3 +1,5 @@
+"""This module initialtes the application with various route() decorators."""
+
 from flask import Flask, jsonify
 from flask import request, json, Response
 from github_functions import (label_opened_issue, issue_comment_approve_github,
@@ -24,6 +26,7 @@ app = Flask(__name__)
 
 
 def collect_unreviewed_prs():  # pragma: no cover
+    """Collect PRs for each repository that are not reviewed."""
     for key, value in repo_vs_channel_id_dict.iteritems():
         # Collect PRs for each repo
         pr_list = list_open_prs_from_repo('systers', key)
@@ -44,12 +47,19 @@ schedule.start()
 
 @app.route('/')
 def home():
+    """Route to the main page using route decorator.
+
+    return: "Response to test hosting."
+    """
     return 'Response to test hosting.'
 
 
-# This function will recieve all the github events
 @app.route('/web_hook', methods=['POST'])
 def github_hook_receiver_function():
+    """All github events and listened and captured.
+
+    return: message with the name of the event succesfully occured.
+    """
     if request.headers['Content-Type'] == 'application/json':
         data = request.json
         action = data.get('action', None)
@@ -177,6 +187,10 @@ def github_hook_receiver_function():
 
 @app.route('/challenge', methods=['POST'])
 def slack_hook_receiver_function():
+    """All slack events are listened and captured.
+
+    return: message with the name of the event occured.
+    """
     if request.headers['Content-Type'] == 'application/json':
         data = request.json
         challenge = data.get('challenge', None)
@@ -214,6 +228,10 @@ def slack_hook_receiver_function():
 # Receive responses from sysbot_invite slash command
 @app.route('/invite', methods=['POST', 'GET'])
 def invite():
+    """Recieve responses from /invite command and returns response status.
+
+    return: status code for the successful event and vice versa.
+    """
     if request.headers['Content-Type'] == 'application/x-www-form-urlencoded':
         slash_user_info = request.form
         uid = slash_user_info.get('user_id', '')
@@ -225,6 +243,10 @@ def invite():
 
 @app.route('/slack_approve_issue', methods=['POST'])
 def slack_approval_receiver():
+    """Recieve responses from /slack_approve_issue and returns response status.
+
+    return: response status code.
+    """
     if request.headers['Content-Type'] == 'application/x-www-form-urlencoded':
         data = request.form
         approve_issue_label_slack(data)
@@ -233,6 +255,10 @@ def slack_approval_receiver():
 
 @app.route('/slack_assign_issue', methods=['POST'])
 def slack_assign_receiver():
+    """Recieve responses from /slack_assign_issue and returns response status.
+
+    return: repsonse status code.
+    """
     if request.headers['Content-Type'] == 'application/x-www-form-urlencoded':
         data = request.form
         assign_issue_slack(data)
@@ -241,6 +267,10 @@ def slack_assign_receiver():
 
 @app.route('/claim', methods=['POST'])
 def slack_claim_receiver():
+    """Recieve responses from /claim and returns response status.
+
+    return: response status code.
+    """
     if request.headers['Content-Type'] == 'application/x-www-form-urlencoded':
         claimers_info = request.form
         claim_issue_slack(claimers_info)
@@ -249,6 +279,10 @@ def slack_claim_receiver():
 
 @app.route('/open_issue', methods=['POST'])
 def open_issue_receiver():
+    """Recieve responses from /open_issue and returns response status.
+
+    return: response status code.
+    """
     if request.headers['Content-Type'] == 'application/x-www-form-urlencoded':
         openers_info = request.form
         open_issue_slack(openers_info)
@@ -257,6 +291,10 @@ def open_issue_receiver():
 
 @app.route('/help', methods=['POST'])
 def help_command():
+    """Recieve responses from /help and returns response status.
+
+    return: response status code.
+    """
     if request.headers['Content-Type'] == 'application/x-www-form-urlencoded':
         user_info = request.form
         send_message_ephemeral(user_info.get('channel_id', ''),
@@ -281,6 +319,10 @@ def label_issue():
 
 
 def get_stems(sentence):
+    """Perform join on stemmed tokens and return stemmed sentence.
+
+    return: response status code.
+    """
     # Generator expressions with joins are much faster than conversion to strings
     # and appending to stemmed tokens to lists and overheads of string conversion.
     stemmed_sentence = ' '.join(stem(token) for token in word_tokenize(sentence))
@@ -288,6 +330,10 @@ def get_stems(sentence):
 
 
 def lemmatize_sent(sentence):
+    """Perform join on lemmatized tokens and return lemmatized sentance.
+
+    return: response status code.
+    """
     # Generator expressions with joins are much faster than conversion to strings
     # and appending to stemmed tokens to lists and overheads of string conversion.
     lemmatized_sentence = ' '.join(WordNetLemmatizer().lemmatize(token) for token in word_tokenize(sentence))
@@ -295,8 +341,9 @@ def lemmatize_sent(sentence):
 
 
 def is_variant_of_approve(sentence):
+    """All variants of approve like approved, approving and approval have the same stem approve.
+    """
     stemmed_sentence_tokens = get_stems(sentence).split()
-    # All variants of approve like approve, approved, approving and approval have the same stem approv
     return ('approv' in stemmed_sentence_tokens and 'no' not in stemmed_sentence_tokens and
             'not' not in stemmed_sentence_tokens)
 

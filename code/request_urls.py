@@ -1,3 +1,5 @@
+"""Github and slack urls."""
+
 # FOR SLACK
 
 # Slack API urls

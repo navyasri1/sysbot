@@ -1,3 +1,5 @@
+"""This module handles funtionalities via slack."""
+
 # -*- coding: utf-8 -*-
 
 import requests
@@ -25,6 +27,14 @@ headers_legacy_urlencoded = {
 
 
 def dm_new_users(data):
+    """DM sent to the newcommers.
+
+    Any newcomer who joins Systers slack workspace gets a DM
+    from the bot with a welcome message, providing help on
+    how to start and how to use the bot.
+    param data: json response with key value pairs containing user information.
+    return: response message and status code.
+    """
     # Get user id of the user who joined
     uid = data.get('event', {}).get('user', None)
     if uid is not None:
@@ -48,6 +58,11 @@ def dm_new_users(data):
 
 
 def is_maintainer_comment(commenter_id):
+    """Check if a certain commenter is a member of the Slack maintainers team.
+
+    param commenter_id: user id of the commenter.
+    return: response message and status code.
+    """
     # Using the id of usergroup maintainers
     body = {'usergroup': maintainer_usergroup_id, 'include_disabled': True}
     # Get list of maintainers. For more info :  usergroups.users.list in Slack API
@@ -65,6 +80,15 @@ def is_maintainer_comment(commenter_id):
 
 
 def approve_issue_label_slack(data):
+    """Approve issue via slack.
+
+    Handle approval of issue from Slack. Extracts info from
+    the event data and send the required data to github
+    function for approval.
+    param data: json response with key value pairs containing
+                user and channel information.
+    return: response message.
+    """
     channel_id = data.get('channel_id', '')
     uid = data.get('user_id', '')
     result = is_maintainer_comment(uid)
@@ -114,6 +138,13 @@ def approve_issue_label_slack(data):
 
 
 def check_newcomer_requirements(uid, channel_id):
+    """Check if the requirements are met.
+
+    Check if a newcomer has met the reqirements as mentioned in the membership levels guidelines.
+    param uid: ID of the newcomer.
+    param channel_id: ID of the channel.
+    return: response message if the requiremnets are satisfied.
+    """
     response = get_detailed_profile(uid)
     if response.get('ok', False):
         profile = response.get('profile', '')
@@ -135,6 +166,14 @@ def check_newcomer_requirements(uid, channel_id):
 
 
 def assign_issue_slack(data):
+    """Assign issue via slack.
+
+    Handle assigning of issues from Slack. Extracts info from
+    the event data and send the required data to github function for assigning.
+    param data: json response with key value pairs containing
+                user and channel info.
+    return: response message
+    """
     result = is_maintainer_comment(data.get('user_id', ''))
     channel_id = data.get('channel_id', '')
     uid = data.get('user_id', '')
@@ -182,6 +221,14 @@ def assign_issue_slack(data):
 
 
 def claim_issue_slack(data):
+    """Claim issue via slack.
+
+    Handle claiming of issues from Slack. Extracts info from the
+    event data and send the required data to github function for claiming.
+    param data: json response with key value pairs
+                containing user and channel information.
+    return: constructed message in response to different conditions.
+    """
     params = data.get('text', '')
     tokens = params.split(' ')
     channel_id = data.get('channel_id', '')
@@ -248,6 +295,12 @@ def claim_issue_slack(data):
 
 
 def send_message_to_channels(channel_id, message):  # pragma: no cover
+    """Send a message to a channel(public, private or DM channel).
+
+    param channel_id: ID of the channel.
+    param message: message to be sent.
+    return: response message and status code.
+    """
     body = {'username': 'Sysbot', 'as_user': True, 'text': message, 'channel': channel_id}
     response = requests.post(dm_chat_post_message_url, data=json.dumps(body), headers=headers)
     if response.json().get('ok', False):
@@ -257,18 +310,39 @@ def send_message_to_channels(channel_id, message):  # pragma: no cover
 
 
 def send_message_thread(channel_id, message, thread_timestamp):  # pragma: no cover
+    """Send the message thread.
+
+    param channel_id: ID of the channel.
+    param message: message to be sent.
+    param thread_timestamp: Current time of the event (thread)
+    return: response status code.
+    """
     body = {'username': 'Sysbot', 'as_user': True, 'text': message, 'channel': channel_id, 'thread_ts': thread_timestamp}
     response = requests.post(dm_chat_post_message_url, data=json.dumps(body), headers=headers)
     return response.status_code
 
 
 def send_message_ephemeral(channel_id, uid, message):
+    """Send ephimeral message.
+
+    Send message to channels, but is only visible to the
+    person who caused the message from the bot.
+    param channel_id: ID of the channel.
+    param uid: ID of the user.
+    param message: message to be sent.
+    return: response status code.
+    """
     body = {'username': 'Sysbot', 'as_user': True, 'text': message, 'channel': channel_id, 'user': uid}
     response = requests.post(chat_post_ephimeral_message_url, data=json.dumps(body), headers=headers)
     return response.status_code
 
 
 def open_issue_slack(data):  # pragma: no cover
+    """Handle opening issues from slack.
+
+    param data: json response with key value pairs containing user information.
+    return: response message and status code.
+    """
     channel_id = data.get('channel_id', '')
     uid = data.get('user_id', '')
     # Get the command parameters used by the user
@@ -299,6 +373,11 @@ def open_issue_slack(data):  # pragma: no cover
 
 
 def get_detailed_profile(uid):
+    """Get the detailed profile of a user(includes fields like date of birth).
+
+    param uid: ID of the user.
+    return: True if the profile request gets processed.
+    """
     body = {'user': uid, 'include_labels': True}
     profile_response_json = requests.post(get_user_profile_info_url, data=body, headers=headers_legacy_urlencoded).json()
     if profile_response_json.get('ok', False):
@@ -308,17 +387,29 @@ def get_detailed_profile(uid):
 
 
 def get_github_username_profile(profile):
-        custom_fields = profile.get('fields', {})
-        if custom_fields is not None:
-            for key in custom_fields:
-                github_link = custom_fields.get(key, {}).get('value', '')
-                if 'github.com/' in github_link:
-                    github_id = github_link.split('github.com/')[1]
-                    return {'github_profile_present': True, 'github_id': github_id}
-        return {'github_profile_present': False}
+    """Extract the github username from github field value.
+
+    param profile: user profile information.
+    return: True if the profile is present.
+    """
+    custom_fields = profile.get('fields', {})
+    if custom_fields is not None:
+        for key in custom_fields:
+            github_link = custom_fields.get(key, {}).get('value', '')
+            if 'github.com/' in github_link:
+                github_id = github_link.split('github.com/')[1]
+                return {'github_profile_present': True, 'github_id': github_id}
+    return {'github_profile_present': False}
 
 
 def slack_team_name_reply(data):
+    """Reply to teams on slack.
+
+    The bot uses a trained agent provided by LUIS API to recognise
+    questions about team maintainers and responds with team names for
+    each channel. param data: json response with key value pairs
+    containing user and channel information.
+    """
     message = data.get('event', {}).get('text', '')
     channel_id = data.get('event', {}).get('channel', '')
     uid = data.get('event', {}).get('user', '')
@@ -357,6 +448,15 @@ def slack_team_name_reply(data):
 
 
 def handle_message_answering(event_data):
+    """Handle answering of certain questions.
+
+    On the intro and newcomers channel, the bot responds
+    to questions on getting started and about Systers,
+    AnitaB, GSoC and other programs, and replies with
+    more information on these topics.
+    param event_data: information related to the occured event.
+    return: response message.
+    """
     # Time stamp  of thread if present
     thread_ts = event_data.get('thread_ts', None)
     # Message time stamp
@@ -373,7 +473,7 @@ def handle_message_answering(event_data):
     # If the message is in a thread and made by the parent commenter
     elif thread_ts is not None and parent_uid == comment_user_uid:
         reply_ts = thread_ts
-    if channel == CHANNEL_LIST.get('intro'):  # pragma: no cover
+    if channel == 'C0CAF47RQ':  # pragma: no cover
         techs = techstack_vs_projects.keys()
         suggest_projects_set = set()
         search_text_tokens = word_tokenize(text.upper())
@@ -408,6 +508,13 @@ def handle_message_answering(event_data):
 
 
 def answer_keyword_faqs(comment_text, channel, reply_ts):
+    """Answer FAQs related to certain keywords.
+
+    param comment_text: comment message.
+    param channel: channel information.
+    param reply_ts: reply timestamp.
+    return: "Keyword FAQs answered" when the message thread is sent.
+    """
     sentences = sent_tokenize(comment_text)
     for sentence in sentences:
         is_question = check_is_question(sentence)
@@ -423,6 +530,11 @@ def answer_keyword_faqs(comment_text, channel, reply_ts):
 
 
 def check_is_question(sentence):
+    """Check if the message is a question.
+
+    param sentence: message that is to be checked.
+    return: True if sentence is a question.
+    """
     start_words = ["who", "what", "when", "where", "why", "how", "is", "can", "does", "do"]
     if sentence.endswith("?"):
         return True
@@ -433,6 +545,13 @@ def check_is_question(sentence):
 
 
 def luis_classifier(query, channel, reply_ts):
+    """Classifies comments to intents like getting started, participant-gender.
+
+    param query: question asked by the user.
+    param channel: ID of the channel.
+    param reply_ts: reply timestamp.
+    return: category name under which the question is classified.
+    """
     query = query.replace(' ', '%20')
     request_url = luis_agent_intent_classify_call % (path_secret, api_key, query)
     response = requests.get(request_url).json()
@@ -447,6 +566,11 @@ def luis_classifier(query, channel, reply_ts):
 
 
 def view_issue_slack(event_data):
+    """View an issue directly on Slack. Fetches issue body and posts it on Slack.
+
+    param event_data: Data related to the event.
+    return: response message.
+    """
     command_text = event_data.get('text', '')
     channel_id = event_data.get('channel_id', '')
     uid = event_data.get('user_id', '')
@@ -465,6 +589,11 @@ def view_issue_slack(event_data):
 
 
 def label_issue_slack(event_data):
+    """Label issue via slack.
+
+    param event_data: Dataa related to the event.
+    return: response message.
+    """
     label_text = event_data.get('text', '')
     channel_id = event_data.get('channel_id', '')
     uid = event_data.get('user_id', '')

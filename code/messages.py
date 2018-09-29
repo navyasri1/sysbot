@@ -1,3 +1,5 @@
+"""Message contructs for different commads/functionalities."""
+
 # -*- coding: utf-8 -*-
 
 MESSAGE = {
