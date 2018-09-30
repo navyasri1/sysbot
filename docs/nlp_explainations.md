@@ -1,3 +1,9 @@
+Motivation
+---
+
+The main aim of sysbot is to enhance and streamline the user experience in managing repositories and workflows across Slack and Github. While sysbot seamlessly presents numerous useful functionalities, a big pitfall is the rigidity in dealing with user interaction. The advent of Artificial Intelligence and Natural Language Processing along with the ease with which existing packages and libraries can be integrated to sysbot have led us to explore NLP for improving the flexibility of user interaction with sysbot. There is documentation available on the kind of tasks sysbot aims to implement and enhance in the NLP domain. Given the immense potential in this field, sysbot promotes more experimental features and designs in NLP to make sysbot a strong, robust classifier.
+
+
 Intents and Entities
 ----
 
