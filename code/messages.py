@@ -1,6 +1,7 @@
+# -*- coding: utf-8 -*-
 """Message contructs for different commads/functionalities."""
 
-# -*- coding: utf-8 -*-
+
 
 MESSAGE = {
     'first_timer_message': 'Hello!\nWelcome to the Systers Open Source community!\n\n'
