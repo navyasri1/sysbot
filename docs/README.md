@@ -11,7 +11,7 @@ Systers Slackbot - Sysbot Project
 **This project is under active development.**
 
 This project is currently hosted on Pythonanywhere
-[here](sombuddha2016.pythonanywhere.com) and on AWS
+[here](https://sombuddha2016.pythonanywhere.com) and on AWS
 [here](http://sysbot-dev.5uhcagxzd9.eu-central-1.elasticbeanstalk.com/).  
 
 About
